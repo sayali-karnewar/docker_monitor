@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Monitor</title>
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 5px;
+          text-align: left;    
+        }
+        </style>
+</head>
+<body>
+    {%block get%}
+    {%endblock%}
+<hr>
+<br>
+    {%block monitor%}
+
+    <table  style="width:100%">
+        <tr>
+            <th>container name</th>
+            <th>started at</th>
+            <th>status</th>
+            <th>cpu/ram</th>
+        </tr>
+        {% for i in container_list %}
+        <tr>
+            <td>{{ i[container_name] }}</td>
+            <td>{{ i[started_at] }}</td>
+            <td>{{ i[status] }}</td>
+            <td> cpu </td>
+        </tr>
+        {%endfor%}
+    </table>
+
+
+    {%endblock%}
+
+</body>
+</html>
