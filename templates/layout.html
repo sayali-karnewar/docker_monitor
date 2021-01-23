@@ -24,17 +24,19 @@
 
     <table  style="width:100%">
         <tr>
-            <th>container name</th>
+            <th>Container Name</th>
             <th>started at</th>
-            <th>status</th>
-            <th>cpu/ram</th>
+            <th>State</th>
+            <th>ram</th>
+            <th>CPU</th>
         </tr>
         {% for i in container_list %}
         <tr>
-            <td>{{ i[container_name] }}</td>
-            <td>{{ i[started_at] }}</td>
-            <td>{{ i[status] }}</td>
-            <td> cpu </td>
+            <td>{{ i['container_name'] }}</td>
+            <td>{{ i['started_at'] }}</td>
+            <td>{{ i['status'] }}</td>
+            <td> {{ i['ram']}} </td>
+            <td>{{ i['cpu'] }} </td>
         </tr>
         {%endfor%}
     </table>
