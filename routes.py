@@ -1,6 +1,5 @@
-from views import get, monitor
+from views import monitor
 
 
 def routes(app):
-    app.router.add_get("/", get)
-    app.router.add_get("/monitor", monitor)
+    app.router.add_get("/", monitor)

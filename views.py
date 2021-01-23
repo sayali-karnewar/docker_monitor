@@ -1,10 +1,6 @@
 import aiohttp_jinja2
-#from setup import setup_docker
 import docker
 
-@aiohttp_jinja2.template("get.html")
-async def get(request):
-    return {"status":"success"}
 
 @aiohttp_jinja2.template("layout.html")
 async def monitor(request):
