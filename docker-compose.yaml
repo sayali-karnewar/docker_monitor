@@ -1,6 +1,8 @@
 version: "3.8"
 
 services: 
+
+# AIOHTTP REST Server
   docker_monitor:
     image: docker_monitor
     ports: 
@@ -12,7 +14,8 @@ services:
       - database
     network_mode: "host"
     command: "python -u main.py"
-
+    
+# MONGO Database
   database:
     image: mongo
     ports: 

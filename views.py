@@ -1,53 +1,51 @@
 import aiohttp_jinja2
 import docker
 
+#global variable for no. of times of load.
+refresh = 0
 
 @aiohttp_jinja2.template("layout.html")
 async def monitor(request):
+    #data loaded for the first time from the function call
+    global refresh
     db = request.app['db']
-    container_name = []
-    container_started_at = []
-    container_status = []
-    container_ram = []
-    container_cpu_percent = []
-    try:
-        client = docker.from_env()
-        container_list = client.containers.list(all=True)
-    except:
-        print(1)    
-    try:    
-        for i in container_list:
-            st = str(i)[12:-1]
-            container = client.containers.get(st)
-            container_name.append(container.attrs['Name'])
-            container_started_at.append(container.attrs['State']['StartedAt'])
-            container_status.append(container.attrs['State']['Status'])
-            container_ram.append(container.attrs['HostConfig']['Memory'])
-            container_cpu_percent.append(container.attrs['HostConfig']['CpuPercent'])
-    except:
-        print(2)
-    n = len(container_name)
+    
+    if refresh == 0:
+        await db.collection.drop()
+        
+        try:
+            #Client creation
+            client = docker.from_env()
+            container_list = client.containers.list(all=True)
+            
+        except:
+            return {"result": "client creation failure"}    
+        try:    
+            result_list = []
+            for i in container_list:
+                st = str(i)[12:-1]
+                dic1 = {}
+                container = client.containers.get(st)
+                dic1['container_name'] = container.attrs['Name']
+                dic1['started_at'] = container.attrs['State']['StartedAt']
+                dic1['status'] = container.attrs['State']['Status']
+                dic1['ram'] = container.attrs['HostConfig']['Memory']
+                dic1['cpu'] = container.attrs['HostConfig']['CpuPercent']
+                result_list.append(dic1)
+        except:
+            return {"result": "data not found"}
+        
+        try:
+            await db.collection.insert_many(i for i in result_list)
 
-    container_list = []
-    try:
-        for i in range(n): 
-            dic1 = {}
-            dic1['container_name'] = container_name[i]
-            dic1['started_at'] = container_started_at[i]
-            dic1['status'] = container_status[i]
-            dic1['ram'] = container_ram[i]
-            dic1['cpu'] = container_cpu_percent[i]
-            container_list.append(dic1)
-    except:
-        print(3)
-    try:
-        await db.collection.insert_many([[
-                                {'container_name':container_name[i]}, 
-                                {'container_started_at':container_started_at[i]},
-                                {'container_status':container_status[i]}, 
-                                {'container_ram':container_ram[i]}, 
-                                {'container_cpu_percent':container_cpu_percent[i]}] for i in range(n)])    
-    except:
-        print(4)
-
-    return {'container_list': container_list}
+        except:
+            return {"result": "data not stored in the db"}
+        refresh+=1
+        return {'container_list': result_list}
+    
+    #data retrieved from the database after refresh 
+    else:
+        result_list = []
+        async for document in db.collection.find():
+            result_list.append(document)   
+        return {"result_list" : result_list} 
